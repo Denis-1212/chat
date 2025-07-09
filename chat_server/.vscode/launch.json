@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to hello_world",
+            "type": "erlang",
+            "request": "attach",
+            "projectnode": "debug@denis-ASUS-EXPERTCENTER-AIO-E5402WHA-A5402WHA",
+            "cookie": "debug_cookie",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}

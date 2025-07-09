@@ -1,0 +1,46 @@
+.messageItem {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid gray;
+
+    .messageHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        margin-bottom: 8px;
+
+
+        .time {
+            color: #888;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #888;
+        }
+
+        .deliveryStatus {
+            display: flex;
+            justify-content: space-between;
+
+            .icon {
+                width: 16px;
+                height: 16px;
+                color: #007bff;
+            }
+        }
+    }
+
+    .messageContent {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+}

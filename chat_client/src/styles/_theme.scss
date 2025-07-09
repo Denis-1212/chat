@@ -1,0 +1,16 @@
+
+@use 'sass:meta';
+@use './light' as light;
+@use './dark' as dark;
+
+@mixin theme-light {
+  @each $name, $value in meta.module-variables(light) {
+    --#{$name}: #{$value};
+  }
+}
+
+@mixin theme-dark {
+  @each $name, $value in meta.module-variables(dark) {
+    --#{$name}: #{$value};
+  }
+}

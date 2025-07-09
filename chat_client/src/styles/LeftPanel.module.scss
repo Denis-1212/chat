@@ -1,0 +1,21 @@
+@use './theme.scss' as theme;
+
+.leftPanel {
+  min-width: 250px;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--color-background);
+  box-sizing: border-box;
+  padding: 10px;
+
+  .item {
+    padding: 8px;
+    background: var(--color-surface);
+    margin-bottom: 6px;
+    border-radius: 4px;
+  }
+}
+
+.hidden {
+  visibility: hidden;
+}

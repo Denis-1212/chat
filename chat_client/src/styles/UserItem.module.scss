@@ -1,0 +1,40 @@
+.userItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 5px;
+
+  &.online {
+    border-left: 4px solid #12df4f;
+  }
+
+  &.offline {
+    border-left: 4px solid gray;
+  }
+
+  &.selected {
+    background-color: var(--color-primary);
+  }
+}
+
+.name {
+  flex: 1;
+  color: var(--color-text);
+}
+
+.callButton {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
