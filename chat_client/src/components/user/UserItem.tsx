@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from '../../styles/UserItem.module.scss';
 import { Phone } from 'lucide-react';
 import { UserItemProps } from './UserItemProps';

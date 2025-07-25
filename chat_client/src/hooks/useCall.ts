@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useWebSocketContext } from '../context/WebSocketContext';
 import Controllers from '../dto/enums/Controllers';
-import Actions from '../dto/enums/Actions';
 import RtcSignalingType from '../dto/enums/RtcSignalingType';
+import Actions from '../dto/enums/Actions';
 
 export function useCall() {
     const [isCalling, setIsCalling] = useState(false);
     const [callee, setCallee] = useState<string | null>(null);
+    const [incomingCall, setIncomingCall] = useState<{ from: string; sdp: RTCSessionDescriptionInit } | null>(null);
+
+    const ringtoneRef = useRef<HTMLAudioElement | null>(null);
 
     const pcRef = useRef<RTCPeerConnection | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
@@ -27,7 +30,7 @@ export function useCall() {
 
         pc.onicecandidate = (event) => {
             if (event.candidate) {
-                sendMessage(Controllers.SignalingController, Actions.RtcSignaling, { type: RtcSignalingType.IceCandidate, to: target, candidate: event.candidate });
+                sendMessage(Controllers.SignalingController, Actions.IceCandidate, { type: RtcSignalingType.IceCandidate, to: target, candidate: event.candidate });
             }
         };
 
@@ -40,39 +43,20 @@ export function useCall() {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
-        sendMessage(Controllers.SignalingController, Actions.RtcSignaling, { type: RtcSignalingType.Offer, to: target, sdp: offer });
+        sendMessage(Controllers.SignalingController, Actions.Offer, { type: RtcSignalingType.Offer, to: target, sdp: offer });
         setIsCalling(true);
     };
 
     const handleSignalingMessage = async (msg: any) => {
         switch (msg.type) {
             case RtcSignalingType.Offer:
-                const pc = new RTCPeerConnection(STUN_CONFIG);
-                pcRef.current = pc;
+                setIncomingCall({ from: msg.from, sdp: msg.sdp });
 
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-                localStreamRef.current = stream;
+                // Воспроизводим сигнал
+                ringtoneRef.current = new Audio('/sounds/ringtone.mp3');
+                ringtoneRef.current.loop = true;
+                ringtoneRef.current.play().catch(console.error);
 
-                pc.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        sendMessage(Controllers.SignalingController, Actions.RtcSignaling, { type: RtcSignalingType.IceCandidate, to: msg.from, candidate: event.candidate });
-                    }
-                };
-
-                pc.ontrack = (event) => {
-                    const audio = new Audio();
-                    audio.srcObject = event.streams[0];
-                    audio.autoplay = true;
-                };
-
-                await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-                sendMessage(Controllers.SignalingController, Actions.RtcSignaling, { type: RtcSignalingType.Answer, to: msg.from, sdp: answer });
-
-                setIsCalling(true);
-                setCallee(msg.from);
                 break;
 
             case RtcSignalingType.Answer:
@@ -89,6 +73,70 @@ export function useCall() {
                 endCall();
                 break;
         }
+    };
+
+    const acceptCall = async () => {
+        if (!incomingCall) return;
+        console.log('acceptCall');
+        if (ringtoneRef.current) {
+            ringtoneRef.current.pause();
+            ringtoneRef.current.currentTime = 0;
+            ringtoneRef.current = null;
+        }
+
+        const pc = new RTCPeerConnection(STUN_CONFIG);
+        pcRef.current = pc;
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+        localStreamRef.current = stream;
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendMessage(Controllers.SignalingController, Actions.IceCandidate, {
+                    type: RtcSignalingType.IceCandidate,
+                    to: incomingCall.from,
+                    candidate: event.candidate
+                });
+            }
+        };
+
+        pc.ontrack = (event) => {
+            const audio = new Audio();
+            audio.srcObject = event.streams[0];
+            audio.autoplay = true;
+        };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(incomingCall.sdp));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        sendMessage(Controllers.SignalingController, Actions.Answer, {
+            type: RtcSignalingType.Answer,
+            to: incomingCall.from,
+            sdp: answer
+        });
+
+        setIsCalling(true);
+        setCallee(incomingCall.from);
+        setIncomingCall(null);
+    };
+
+
+    const rejectCall = () => {
+        if (!incomingCall) return;
+        console.log('rejectCall');
+        if (ringtoneRef.current) {
+            ringtoneRef.current.pause();
+            ringtoneRef.current.currentTime = 0;
+            ringtoneRef.current = null;
+        }
+
+        sendMessage(Controllers.SignalingController, Actions.EndCall, {
+            type: RtcSignalingType.EndCall,
+            to: incomingCall.from
+        });
+        setIncomingCall(null);
     };
 
     const endCall = () => {
@@ -113,5 +161,15 @@ export function useCall() {
         return () => socket.removeEventListener('message', handler);
     }, [socket]);
 
-    return { startCall, endCall, isCalling, callee };
+    return {
+        startCall,
+        endCall,
+        isCalling,
+        callee,
+        incomingCall,
+        acceptCall,
+        rejectCall,
+
+    };
+
 }

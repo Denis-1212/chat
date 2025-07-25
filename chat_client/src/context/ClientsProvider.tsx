@@ -14,6 +14,7 @@ export const ClientsProvider = ({ children }: { children: React.ReactNode }) => 
 
     const handleMessage = useCallback((data: any) => {
         if (data?.type === ServerMessageType.ClientInfo) {
+            console.log('ClientInfo received!')
             setClientInfo(data.client);
         } else if (data?.type === ServerMessageType.Clients) {
             setClients(data.clients || []);

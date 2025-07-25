@@ -13,12 +13,19 @@ start(_StartType, _StartArgs) ->
     application:ensure_all_started(cowboy),
     Dispatch =
         cowboy_router:compile([{'_',
-                                [{"/assets/[...]",
+                                [%% Раздача ассетов
+                                 {"/assets/[...]",
                                   cowboy_static,
                                   {priv_dir, chat_server, "static/assets"}},
+                                 %% Раздача звуков
+                                 {"/sounds/[...]",
+                                  cowboy_static,
+                                  {priv_dir, chat_server, "static/sounds"}},
+                                 %% Веб-интерфейс
                                  {"/",
                                   cowboy_static,
                                   {priv_file, chat_server, "static/index.html"}},
+                                 %% WebSocket
                                  {"/websocket", websocket_handler, []}]}]),
     {ok, _} =
         cowboy:start_clear(http, [{port, ?SERVER_WS_PORT}], #{env => #{dispatch => Dispatch}}),

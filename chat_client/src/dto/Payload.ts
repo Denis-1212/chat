@@ -9,6 +9,10 @@ export type Payload = {
         [Actions.Login]: { username: string; };
     };
     [Controllers.SignalingController]: {
-        [Actions.RtcSignaling]: { type: string, to: string, candidate: RTCIceCandidate } | { type: string, to: string, sdp: RTCSessionDescriptionInit };
+        [Actions.EndCall]: { type: string, to: string };
+        [Actions.Answer]: { type: string, to: string, candidate: RTCIceCandidate } | { type: string, to: string, sdp: RTCSessionDescriptionInit };
+        [Actions.Offer]: { type: string, to: string, candidate: RTCIceCandidate } | { type: string, to: string, sdp: RTCSessionDescriptionInit };
+        [Actions.IceCandidate]: { type: string, to: string, candidate: RTCIceCandidate } | { type: string, to: string, sdp: RTCSessionDescriptionInit };
     };
+
 };

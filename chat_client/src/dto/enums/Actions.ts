@@ -1,7 +1,10 @@
 enum Actions {
     Login = 'login',
     SendMessage = 'send_message',
-    RtcSignaling = 'rtc_signaling'
+    IceCandidate = 'ice-candidate',
+    Offer = 'offer',
+    Answer = 'answer',
+    EndCall = 'end-call',
 }
 
 export default Actions;

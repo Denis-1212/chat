@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from '../../styles/MessageItem.module.scss';
 import { MessageItemProps } from './MessageItemProps';
 

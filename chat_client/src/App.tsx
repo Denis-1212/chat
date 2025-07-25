@@ -3,12 +3,15 @@ import Layout from './components/Layout';
 import { WebSocketProvider } from './context/WebSocketContext';
 import { ClientsProvider } from './context/ClientsProvider';
 import { UseMessagesProvider } from './context/MessagesProvider';
+import { CallProvider } from './context/CallContext';
 
 const App: React.FC = () => {
   return <WebSocketProvider>
     <ClientsProvider>
       <UseMessagesProvider>
-        <Layout />
+        <CallProvider>
+          <Layout />
+        </CallProvider>
       </UseMessagesProvider>
     </ClientsProvider>
   </WebSocketProvider>;
